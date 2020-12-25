@@ -2,8 +2,7 @@ from functools import wraps
 
 class Decorators:
     '''
-    Since any function defined inside the class becomes an instance method of the class,
-    the functions are changed from inner function to inner class
+    Class of decorator functions.
     https://medium.com/@vadimpushtaev/decorator-inside-python-class-1e74d23107f6
     '''
     @classmethod
