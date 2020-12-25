@@ -5,64 +5,90 @@ import itertools
 class Finanzierung:
     """
     betrag: kreditbetrag
-    tilgungr: tilgungssatz bzw. tilgungsrate
+    tilgungssatz: tilgungssatz bzw. tilgungsrate
     tilgungstart: tilgungsbeginn
     sollzins: jahrliche sollzins
     effzins: effektiver jahresollzins
     zb: zinsbindung (jahre)
     laufzeit: laufzeit (jahre)
     """
-    def __init__(self, betrag, tilgungr, sollzins):
-        self.darlehen = betrag
-        self.tilgungr = tilgungr/100
+    def __init__(self, betrag, tilgungssatz, sollzins, laufzeit):
+        self.betrag = betrag
+        self.tilgungssatz = tilgungssatz/100
         self.sollzins = sollzins/100
-        self.__start_zinsen = 0
-        self.__start_tilgung = 0
+        self.laufzeit = laufzeit
 
         self.jahrliche_rate = self.__jahrliche_rate()
         self.monatliche_rate = self.__monatliche_rate()
 
+        self.__zinsreihe = []
+        self.__tilgungsreihe = []
+        self.__saldoreihe = []
+        self.__reihen()
+
+
     def __jahrliche_rate(self):
-        return self.darlehen*(self.tilgungr) + self.darlehen*(self.sollzins)
+        '''
+        Jahrliche Zahlungsbetrag
+        '''
+        return self.betrag*(self.sollzins + self.tilgungssatz)
 
     def __monatliche_rate(self):
+        '''
+        Monatlich Zahlungsbetrag
+        '''
         return self.jahrliche_rate/12
 
 
+    def __reihen(self):
+        '''
+        Monatliche Betrag von Zins, Tilgung und Restschuld
+        '''
+        saldo = self.betrag
+        m_sollzins = self.sollzins/12
+        m_laufzeit = self.laufzeit*12
+        
+        self.__zinsreihe.append(0)
+        self.__tilgungsreihe.append(0)
+        self.__saldoreihe.append(saldo)
+        for _ in range(1, m_laufzeit + 1):
+            zinsen = saldo*m_sollzins
+            tilgung = self.monatliche_rate - zinsen
+            saldo -= tilgung
+
+            self.__zinsreihe.append(zinsen)
+            self.__tilgungsreihe.append(tilgung)
+            self.__saldoreihe.append(saldo)
+
+
     def tilgung_monat(self, monat):
-        if monat == 0:
-            return self.__start_tilgung
-        else:
-            zinsen = self.zinsen_monat(monat)
-            return (self.monatliche_rate - zinsen)
-    
+        '''
+        Tigungsbetrag an angegebene Monat
+        '''
+        return self.__tilgungsreihe[monat]
 
     def zinsen_monat(self, monat):
-        if monat == 0:
-            return self.__start_zinsen
-        else:
-            saldo_vormonat = self.saldo_monat(monat - 1)
-            tilgung_vormonat = self.tilgung_monat(monat - 1)
-            return self.sollzins*(saldo_vormonat - tilgung_vormonat)/12
+        '''
+        Zinsbetrag an angegebene Monat
+        '''
+        return self.__zinsreihe[monat]
 
-    
     def saldo_monat(self, monat):
-        if monat == 0:
-            return self.darlehen
-        else:
-            saldo_vormonat = self.saldo_monat(monat - 1)
-            tilgung = self.tilgung_monat(monat)
-            return saldo_vormonat - tilgung
+        '''
+        Restschuld an angegebene Monat
+        '''
+        return self.__saldoreihe[monat]
 
 
 if __name__=='__main__':
 
     fz = Finanzierung(
         betrag=479000,
-        tilgungr=3,
-        sollzins=0.92
+        tilgungssatz=3,
+        sollzins=0.92,
+        laufzeit=29
     )
 
     print(round(fz.monatliche_rate, 2))
-    print(round(fz.saldo_monat(1), 2))
-    print(round(fz.zinsen_monat(2), 2))
+    print(round(fz.saldo_monat(120), 2))
+    print(round(fz.zinsen_monat(120), 2))
