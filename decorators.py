@@ -29,11 +29,9 @@ class Decorators:
             "Monat" must be an integer value representing the number of month from
             start of the credit or a date value of the format mm.yyyy
         '''
-        if isinstance(monat, int):
+        if isinstance(monat, int) or isinstance(monat, str):
             return monat, ''
         elif isinstance(monat, float):
             return '', err
-        elif isinstance(monat, str):
-            return monat, ''
         else:
             return '', err
