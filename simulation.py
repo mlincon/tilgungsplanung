@@ -1,18 +1,24 @@
 import numpy as np
 import pandas as pd
-import itertools
 
+from decorators import Decorators
 class Finanzierung:
     """
     betrag: kreditbetrag
     tilgungssatz: tilgungssatz bzw. tilgungsrate
-    tilgungstart: tilgungsbeginn
+    tilgungsbeginn: tilgungsbeginn (mm.yyyy)
     sollzins: jahrliche sollzins
     effzins: effektiver jahresollzins
     zb: zinsbindung (jahre)
     laufzeit: laufzeit (jahre)
     """
-    def __init__(self, betrag, tilgungssatz, sollzins, laufzeit):
+    def __init__(
+        self, 
+        betrag, 
+        tilgungssatz, 
+        sollzins, 
+        laufzeit
+    ):
         self.betrag = betrag
         self.tilgungssatz = tilgungssatz/100
         self.sollzins = sollzins/100
@@ -60,24 +66,32 @@ class Finanzierung:
             self.__tilgungsreihe.append(tilgung)
             self.__saldoreihe.append(saldo)
 
-
+    
+    @Decorators.check_month
     def tilgung_monat(self, monat):
         '''
         Tigungsbetrag an angegebene Monat
         '''
         return self.__tilgungsreihe[monat]
 
+
+    @Decorators.check_month
     def zinsen_monat(self, monat):
         '''
         Zinsbetrag an angegebene Monat
         '''
         return self.__zinsreihe[monat]
 
+
+    @Decorators.check_month
     def saldo_monat(self, monat):
         '''
         Restschuld an angegebene Monat
         '''
         return self.__saldoreihe[monat]
+
+
+
 
 
 if __name__=='__main__':
@@ -91,4 +105,5 @@ if __name__=='__main__':
 
     print(round(fz.monatliche_rate, 2))
     print(round(fz.saldo_monat(120), 2))
-    print(round(fz.zinsen_monat(120), 2))
+    print(round(fz.zinsen_monat(1), 2))
+    print(round(fz.zinsen_monat(120.2312), 2))
