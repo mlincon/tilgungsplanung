@@ -16,7 +16,7 @@ class Decorators:
             if err:
                 raise TypeError(err)
             result = func(self, monat)
-            return result
+            return '{:,.2f}'.format(round(result, 2))
         return __wrapper
     
 

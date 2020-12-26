@@ -1,3 +1,6 @@
+import locale
+locale.setlocale(locale.LC_ALL, 'de_DE')
+
 from typing import Optional
 from decorators import Decorators
 
@@ -71,7 +74,7 @@ class Finanzierung:
         '''
         Tigungsbetrag an angegebene Monat
         '''
-        return round(self.__tilgungsreihe[monat], 2)
+        return self.__tilgungsreihe[monat]
 
 
     @Decorators.check_month
@@ -79,7 +82,7 @@ class Finanzierung:
         '''
         Zinsbetrag an angegebene Monat
         '''
-        return round(self.__zinsreihe[monat], 2)
+        return self.__zinsreihe[monat]
 
 
     @Decorators.check_month
@@ -87,14 +90,14 @@ class Finanzierung:
         '''
         Restschuld an angegebene Monat
         '''
-        return round(self.__restschuldreihe[monat], 2)
+        return self.__restschuldreihe[monat]
 
-
+    @Decorators.check_month
     def summe_zinsen(self, monat: Optional[int] = None) -> float:
         if monat is None:
-            return round(sum(self.__zinsreihe), 2)
+            return sum(self.__zinsreihe)
         else:
-            return round(sum(self.__zinsreihe[:monat]), 2)
+            return sum(self.__zinsreihe[:monat])
 
 
 
