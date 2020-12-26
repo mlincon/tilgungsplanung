@@ -1,3 +1,4 @@
+from typing import Optional
 from decorators import Decorators
 
 class Finanzierung:
@@ -12,10 +13,10 @@ class Finanzierung:
     """
     def __init__(
         self, 
-        betrag, 
-        tilgungssatz, 
-        sollzins, 
-        laufzeit
+        betrag: int, 
+        tilgungssatz: float, 
+        sollzins: float, 
+        laufzeit: int
     ):
         self.betrag = betrag
         self.tilgungssatz = tilgungssatz/100
@@ -31,20 +32,20 @@ class Finanzierung:
         self.__berechne_reihen()
 
 
-    def __berechne_jahrliche_rate(self):
+    def __berechne_jahrliche_rate(self) -> float:
         '''
         Jahrliche Zahlungsbetrag
         '''
         return self.betrag*(self.sollzins + self.tilgungssatz)
 
-    def __berechne_monatliche_rate(self):
+    def __berechne_monatliche_rate(self) -> float:
         '''
         Monatlich Zahlungsbetrag
         '''
         return self.jahrliche_rate/12
 
 
-    def __berechne_reihen(self):
+    def __berechne_reihen(self) -> None:
         '''
         Monatliche Betrag von Zins, Tilgung und Restschuld
         '''
@@ -66,7 +67,7 @@ class Finanzierung:
 
     
     @Decorators.check_month
-    def tilgung_monat(self, monat):
+    def tilgung_monat(self, monat: int) -> float:
         '''
         Tigungsbetrag an angegebene Monat
         '''
@@ -74,7 +75,7 @@ class Finanzierung:
 
 
     @Decorators.check_month
-    def zinsen_monat(self, monat):
+    def zinsen_monat(self, monat: int) -> float:
         '''
         Zinsbetrag an angegebene Monat
         '''
@@ -82,14 +83,14 @@ class Finanzierung:
 
 
     @Decorators.check_month
-    def restschuld_monat(self, monat):
+    def restschuld_monat(self, monat: int) -> float:
         '''
         Restschuld an angegebene Monat
         '''
         return round(self.__restschuldreihe[monat], 2)
 
 
-    def summe_zinsen(self, monat=None):
+    def summe_zinsen(self, monat: Optional[int] = None) -> float:
         if monat is None:
             return round(sum(self.__zinsreihe), 2)
         else:
