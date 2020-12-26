@@ -24,47 +24,47 @@ class Finanzierung:
         self.sollzins = sollzins/100
         self.laufzeit = laufzeit
 
-        self.jahrliche_rate = self.__jahrliche_rate()
-        self.monatliche_rate = self.__monatliche_rate()
+        self.jahrliche_rate = self.__berechne_jahrliche_rate()
+        self.monatliche_rate = self.__berechne_monatliche_rate()
 
         self.__zinsreihe = []
         self.__tilgungsreihe = []
-        self.__saldoreihe = []
-        self.__reihen()
+        self.__restschuldreihe = []
+        self.__berechne_reihen()
 
 
-    def __jahrliche_rate(self):
+    def __berechne_jahrliche_rate(self):
         '''
         Jahrliche Zahlungsbetrag
         '''
         return self.betrag*(self.sollzins + self.tilgungssatz)
 
-    def __monatliche_rate(self):
+    def __berechne_monatliche_rate(self):
         '''
         Monatlich Zahlungsbetrag
         '''
         return self.jahrliche_rate/12
 
 
-    def __reihen(self):
+    def __berechne_reihen(self):
         '''
         Monatliche Betrag von Zins, Tilgung und Restschuld
         '''
-        saldo = self.betrag
+        restschuld = self.betrag
         m_sollzins = self.sollzins/12
         m_laufzeit = self.laufzeit*12
         
         self.__zinsreihe.append(0)
         self.__tilgungsreihe.append(0)
-        self.__saldoreihe.append(saldo)
+        self.__restschuldreihe.append(restschuld)
         for _ in range(1, m_laufzeit + 1):
-            zinsen = saldo*m_sollzins
+            zinsen = restschuld*m_sollzins
             tilgung = self.monatliche_rate - zinsen
-            saldo -= tilgung
+            restschuld -= tilgung
 
             self.__zinsreihe.append(zinsen)
             self.__tilgungsreihe.append(tilgung)
-            self.__saldoreihe.append(saldo)
+            self.__restschuldreihe.append(restschuld)
 
     
     @Decorators.check_month
@@ -72,7 +72,7 @@ class Finanzierung:
         '''
         Tigungsbetrag an angegebene Monat
         '''
-        return self.__tilgungsreihe[monat]
+        return round(self.__tilgungsreihe[monat], 2)
 
 
     @Decorators.check_month
@@ -80,30 +80,56 @@ class Finanzierung:
         '''
         Zinsbetrag an angegebene Monat
         '''
-        return self.__zinsreihe[monat]
+        return round(self.__zinsreihe[monat], 2)
 
 
     @Decorators.check_month
-    def saldo_monat(self, monat):
+    def restschuld_monat(self, monat):
         '''
         Restschuld an angegebene Monat
         '''
-        return self.__saldoreihe[monat]
+        return round(self.__restschuldreihe[monat], 2)
 
 
+    def summe_zinsen(self, monat=None):
+        if monat is None:
+            return round(sum(self.__zinsreihe), 2)
+        else:
+            return round(sum(self.__zinsreihe[:monat]), 2)
 
 
 
 if __name__=='__main__':
 
-    fz = Finanzierung(
+    fz_10 = Finanzierung(
         betrag=479000,
         tilgungssatz=3,
         sollzins=0.92,
         laufzeit=29
     )
+    fz_15 = Finanzierung(
+        betrag=479000,
+        tilgungssatz=3,
+        sollzins=1.22,
+        laufzeit=29
+    )
+    fz_20 = Finanzierung(
+        betrag=479000,
+        tilgungssatz=3,
+        sollzins=1.56,
+        laufzeit=29
+    )
 
-    print(round(fz.monatliche_rate, 2))
-    print(round(fz.saldo_monat(120), 2))
-    print(round(fz.zinsen_monat(1), 2))
-    print(round(fz.zinsen_monat(120.2312), 2))
+    print(round(fz_10.monatliche_rate, 2))
+    print(round(fz_15.monatliche_rate, 2))
+    print(round(fz_20.monatliche_rate, 2))
+
+    print(fz_10.summe_zinsen(15*12))
+    print(fz_10.restschuld_monat(15*12))
+
+    print(fz_15.summe_zinsen(15*12))
+    print(fz_15.restschuld_monat(15*12))
+
+    print(fz_20.summe_zinsen(15*12))
+    print(fz_20.restschuld_monat(15*12))
+
