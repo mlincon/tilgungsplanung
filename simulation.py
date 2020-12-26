@@ -1,7 +1,5 @@
-import numpy as np
-import pandas as pd
-
 from decorators import Decorators
+
 class Finanzierung:
     """
     betrag: kreditbetrag
