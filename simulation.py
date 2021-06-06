@@ -1,3 +1,5 @@
+import pandas as pd
+import numpy as np
 from typing import Optional
 from decorators import Decorators
 
@@ -30,29 +32,29 @@ class Finanzierung:
             self.jahrliche_rate = monatliche_rate*12
             self.monatliche_rate = monatliche_rate
         else:
-            self.jahrliche_rate = self.__berechne_jahrliche_rate()
-            self.monatliche_rate = self.__berechne_monatliche_rate()
+            self.jahrliche_rate = self._berechne_jahrliche_rate()
+            self.monatliche_rate = self._berechne_monatliche_rate()
 
-        self.__zinsreihe = []
-        self.__tilgungsreihe = []
-        self.__restschuldreihe = []
-        self.__berechne_reihen()
+        self._zinsreihe = []
+        self._tilgungsreihe = []
+        self._restschuldreihe = []
+        self._berechne_reihen()
 
 
-    def __berechne_jahrliche_rate(self) -> float:
+    def _berechne_jahrliche_rate(self) -> float:
         '''
         Jahrliche Zahlungsbetrag
         '''
         return self.betrag*(self.sollzins + self.tilgungssatz)
 
-    def __berechne_monatliche_rate(self) -> float:
+    def _berechne_monatliche_rate(self) -> float:
         '''
         Monatlich Zahlungsbetrag
         '''
         return self.jahrliche_rate/12
 
 
-    def __berechne_reihen(self) -> None:
+    def _berechne_reihen(self) -> None:
         '''
         Monatliche Betrag von Zins, Tilgung und Restschuld
         '''
@@ -60,9 +62,9 @@ class Finanzierung:
         m_sollzins = self.sollzins/12
         m_laufzeit = self.laufzeit*12 if self.laufzeit is not None else None
         
-        self.__zinsreihe.append(0)
-        self.__tilgungsreihe.append(0)
-        self.__restschuldreihe.append(restschuld)
+        self._zinsreihe.append(0)
+        self._tilgungsreihe.append(0)
+        self._restschuldreihe.append(restschuld)
         if m_laufzeit is not None:
             for _ in range(1, m_laufzeit + 1):
                 zinsen = restschuld*m_sollzins
@@ -70,9 +72,11 @@ class Finanzierung:
                 restschuld -= tilgung
                 restschuld -= self.sondertilgung
 
-                self.__zinsreihe.append(zinsen)
-                self.__tilgungsreihe.append(tilgung)
-                self.__restschuldreihe.append(restschuld)
+                self._zinsreihe.append(zinsen)
+                self._tilgungsreihe.append(tilgung)
+                self._restschuldreihe.append(restschuld)
+                if restschuld < 0:
+                    break
         else:
             laufzeit_counter = 1
             while restschuld > 0:
@@ -81,10 +85,12 @@ class Finanzierung:
                 restschuld -= tilgung
                 restschuld -= self.sondertilgung
 
-                self.__zinsreihe.append(zinsen)
-                self.__tilgungsreihe.append(tilgung)
-                self.__restschuldreihe.append(restschuld)
+                self._zinsreihe.append(zinsen)
+                self._tilgungsreihe.append(tilgung)
+                self._restschuldreihe.append(restschuld)
                 laufzeit_counter += 1
+                if restschuld < 0:
+                    break
             self.laufzeit = laufzeit_counter
 
     
@@ -93,7 +99,7 @@ class Finanzierung:
         '''
         Tigungsbetrag an angegebene Monat
         '''
-        return self.__tilgungsreihe[monat]
+        return self._tilgungsreihe[monat]
 
 
     # @Decorators.check_month
@@ -101,7 +107,7 @@ class Finanzierung:
         '''
         Zinsbetrag an angegebene Monat
         '''
-        return self.__zinsreihe[monat]
+        return self._zinsreihe[monat]
 
 
     # @Decorators.check_month
@@ -109,14 +115,14 @@ class Finanzierung:
         '''
         Restschuld an angegebene Monat
         '''
-        return self.__restschuldreihe[monat]
+        return self._restschuldreihe[monat]
 
     # @Decorators.check_month
     def summe_zinsen(self, monat: Optional[int] = None) -> float:
         if monat is None:
-            return sum(self.__zinsreihe)
+            return sum(self._zinsreihe)
         else:
-            return sum(self.__zinsreihe[:monat])
+            return sum(self._zinsreihe[:monat])
 
 
 

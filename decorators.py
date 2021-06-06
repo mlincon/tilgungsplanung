@@ -11,17 +11,17 @@ class Decorators:
         Decorator to validate month data type and convert it from string to int if required.
         '''
         @wraps(func)
-        def __wrapper(self, monat):
-            monat, err = cls.__validate_month(monat)
+        def _wrapper(self, monat):
+            monat, err = cls._validate_month(monat)
             if err:
                 raise TypeError(err)
             result = func(self, monat)
             return '{:,.2f}'.format(round(result, 2))
-        return __wrapper
+        return _wrapper
     
 
     @staticmethod
-    def __validate_month(monat):
+    def _validate_month(monat):
         '''
         Validate data type
         '''
